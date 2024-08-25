@@ -1,14 +1,26 @@
 <script lang="ts">
+import BotaoPrincipal from './BotaoPrincipal.vue';
 import SelecionarIngredientes from './SelecionarIngredientes.vue';
 import Tag from './Tag.vue';
 
 export default {
   data() {
     return {
-      ingredientes: ['Alho', 'Manteiga', 'Orégano']
+      ingredientes: [] as string[]
     };
   },
-  components: { SelecionarIngredientes, Tag }
+  components: { SelecionarIngredientes, Tag },
+  methods: {
+    adicionarIngrediente(ingrediente: string){
+      this.ingredientes.push(ingrediente)
+    },
+    removerIngrediente(ingrediente: string){
+      const index = this.ingredientes.indexOf(ingrediente);
+      if (index > -1) {
+        this.ingredientes.splice(index, 1);
+      }
+    }
+  }
 }
 </script>
 
@@ -21,7 +33,7 @@ export default {
 
       <ul v-if="ingredientes.length" class="ingredientes-sua-lista">
         <li v-for="ingrediente in ingredientes" :key="ingrediente">
-          <Tag :texto="ingrediente" ativa />
+          <Tag :texto="ingrediente"  ativa />
         </li>
       </ul>
 
@@ -31,7 +43,12 @@ export default {
       </p>
     </section>
 
-    <SelecionarIngredientes></SelecionarIngredientes>
+    <SelecionarIngredientes 
+      @adicionar-ingredientes="adicionarIngrediente"
+      @remover-ingrediente="removerIngrediente"
+    />
+
+    <BotaoPrincipal />
   </main>
 </template>
 
