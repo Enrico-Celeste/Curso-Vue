@@ -1,24 +1,28 @@
 <script lang="ts">
-import BotaoPrincipal from './BotaoPrincipal.vue';
+import MostrarReceitas from './MostrarReceitas.vue';
 import SelecionarIngredientes from './SelecionarIngredientes.vue';
+import SuaLista from './SuaLista.vue';
 import Tag from './Tag.vue';
+
+type Pagina = 'SelecionarIngredientes' | 'MostrarReceitas';
 
 export default {
   data() {
     return {
-      ingredientes: [] as string[]
+      ingredientes: [] as string[],
+      conteudo: 'SelecionarIngredientes' as Pagina
     };
   },
-  components: { SelecionarIngredientes, Tag },
+  components: { SelecionarIngredientes, Tag, SuaLista, MostrarReceitas },
   methods: {
-    adicionarIngrediente(ingrediente: string){
+    adicionarIngrediente(ingrediente: string) {
       this.ingredientes.push(ingrediente)
     },
-    removerIngrediente(ingrediente: string){
-      const index = this.ingredientes.indexOf(ingrediente);
-      if (index > -1) {
-        this.ingredientes.splice(index, 1);
-      }
+    removerIngrediente(ingrediente: string) {
+      this.ingredientes = this.ingredientes.filter(iLista => ingrediente !== iLista);
+    },
+    navegar(pagina: Pagina) {
+      this.conteudo = pagina;
     }
   }
 }
@@ -26,29 +30,20 @@ export default {
 
 <template>
   <main class="conteudo-principal">
-    <section>
-      <span class="subtitulo-lg sua-lista-texto">
-        Sua lista:
-      </span>
+    <SuaLista :ingredientes="ingredientes" />
 
-      <ul v-if="ingredientes.length" class="ingredientes-sua-lista">
-        <li v-for="ingrediente in ingredientes" :key="ingrediente">
-          <Tag :texto="ingrediente"  ativa />
-        </li>
-      </ul>
-
-      <p v-else class="paragrafo lista-vazia">
-        <img src="../assets/images/icones/lista-vazia.svg" alt="Icone de pesquisa">
-        Sua lista esta vazia, seleciona ingredientes para inciar.
-      </p>
-    </section>
-
-    <SelecionarIngredientes 
-      @adicionar-ingredientes="adicionarIngrediente"
-      @remover-ingrediente="removerIngrediente"
-    />
-
-    <BotaoPrincipal />
+    <KeepAlive include="SelecionarIngredientes">
+      <SelecionarIngredientes v-if="conteudo === 'SelecionarIngredientes'"
+        @adicionar-ingrediente="adicionarIngrediente"
+        @remover-ingrediente="removerIngrediente"
+        @buscar-receitas="navegar('MostrarReceitas')"
+      />
+  
+      <MostrarReceitas v-else-if="conteudo === 'MostrarReceitas'"
+        :ingredientes="ingredientes"
+        @editar-receitas="navegar('SelecionarIngredientes')"
+      />
+    </KeepAlive>
   </main>
 </template>
 
